@@ -5,8 +5,8 @@ import morgan from 'morgan';
 import cors from 'cors';
 
 // подключаем базы данных (обычную и для хранения сессий).
-// импортируем экземпляр базы данных для хранения сессий
-import sessionStore from './config/db.js';
+import './config/db.js';
+import MongoStore from "connect-mongo";
 
 import indexRouter from './src/routes/index.js';
 import authRouter from './src/routes/auth.js';
@@ -23,21 +23,21 @@ app.use(express.static(path.join(dirname, 'client', 'build'))); // middlewares
 app.use(express.json());
 app.use(morgan('dev'));
 
-const corsOptions = {
-  // origin: /\.your.domain\.com$/,    // reqexp will match all prefixes
-  origin: '*',
-  methods: "GET,HEAD,POST,PATCH,DELETE,OPTIONS",
-  credentials: true,                // required to pass
-  allowedHeaders: "Content-Type, Authorization, X-Requested-With",
-}
+// const corsOptions = {
+//   // origin: /\.your.domain\.com$/,    // reqexp will match all prefixes
+//   origin: '*',
+//   methods: "GET,HEAD,POST,PATCH,DELETE,OPTIONS",
+//   credentials: true,                // required to pass
+//   allowedHeaders: "Content-Type, Authorization, X-Requested-With",
+// }
 // app.use(cors(corsOptions));
 
 app.use(
   session({
     name: 'sid', // название куки
-    // ключ для шифрования cookies // require('crypto').randomBytes(10).toString('hex')
+    // ключ для шифрования cookies // require('crypto').randomBytes(16).toString('hex') - генерация ключа
     secret: process.env.SESSION_SECRET,
-    store: sessionStore,
+    store: MongoStore.create({ mongoUrl: process.env.SESSION_DB_PATH }),
     resave: false, // Если true, сохраняет сессию, даже если она не поменялась
     saveUninitialized: false, // Если false, куки появляются только при установке req.session
     cookie: {
