@@ -34,7 +34,6 @@ const SignUp = ({ setAuth }) => {
       //setAuth(false)
     }
   };
-
   return (
     <div>
       <span className="component">

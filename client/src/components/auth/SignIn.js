@@ -29,11 +29,16 @@ const SignIn = ({ setAuth }) => {
     }
   };
 
+  const vkHandler = async () => {
+    await fetch(baseUrl + '/auth/vkontakte')
+  };
+
   return (
     <div>
       <span className="component">
         {' '}
         <button onClick={loginHandler}>Local Strategy</button>
+        <button onClick={vkHandler}>VK auth</button>
       </span>
     </div>
   );

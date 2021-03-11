@@ -11,10 +11,10 @@ import MongoStore from "connect-mongo";
 
 // подключаем настройки паспорта
 import './config/passport.js';
+import './config/passportVK.js'
 
 import indexRouter from './src/routes/index.js';
 import authRouter from './src/routes/auth.js';
-import privateRouter from './src/routes/private.js';
 
 import userMiddleware from './middlewares/user.js';
 import notFoundMiddleware from './middlewares/notfound404.js';
@@ -27,14 +27,14 @@ app.use(express.static(path.join(dirname, 'client', 'build'))); // middlewares
 app.use(express.json());
 app.use(morgan('dev'));
 
-// const corsOptions = {
-//   // origin: /\.your.domain\.com$/,    // reqexp will match all prefixes
-//   origin: '*',
-//   methods: "GET,HEAD,POST,PATCH,DELETE,OPTIONS",
-//   credentials: true,                // required to pass
-//   allowedHeaders: "Content-Type, Authorization, X-Requested-With",
-// }
-// app.use(cors(corsOptions));
+const corsOptions = {
+  // origin: /\.your.domain\.com$/,    // reqexp will match all prefixes
+  origin: '*',
+  methods: "GET,HEAD,POST,PATCH,DELETE,OPTIONS",
+  credentials: true,                // required to pass
+  allowedHeaders: "Content-Type, Authorization, X-Requested-With Al",
+}
+app.use(cors());
 
 app.use(
   session({
@@ -55,13 +55,11 @@ app.use(passport.initialize());
 app.use(passport.session()); //passport.js записавает сессии в req.user
 
 // // записывает имя пользователя в переменную res.locals.username, если он авторизован в системе
-// app.use(userMiddleware);
+app.use(userMiddleware);
 
 app.use('/api', indexRouter);
 app.use('/api/auth', authRouter);
-app.use('/api/private', privateRouter);
 
-//1
 app.get('*', (req, res) => {
   res.sendFile(path.join(dirname, 'client', 'build', 'index.html'));
 });

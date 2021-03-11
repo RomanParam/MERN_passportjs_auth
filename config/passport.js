@@ -1,11 +1,11 @@
 import passport from 'passport';
 import passportLocal from 'passport-local';
-import passportVkontakte from 'passport-vkontakte';
+
 import bcrypt from 'bcrypt';
 import User from '../src/models/user.js';
 
 const LocalStrategy = passportLocal.Strategy;
-const VKontakteStrategy = passportVkontakte.Strategy;
+
 
 // эти две функции с сайта паспорта, они записывают объект юзера в req.user
 passport.serializeUser(function (user, done) {
@@ -17,24 +17,22 @@ passport.serializeUser(function (user, done) {
 passport.deserializeUser(function (id, done) {
   // эта функция отрабатывает при каждом запросе
   User.findById(id, function (err, user) {
-    console.log('deSerializeUser passport.js', user.name);
-    done(err, { name: user.name, id: user.id });
+    console.log('deSerializeUser passport.js', user?.name);
+    done(err, user);
   });
 });
 
 const localAuth = async (req, email, pass, done) => {
-  const name = req.body.name;
   console.log('>>>>>>>>>>>>>>>PASSPORT<<<<<<<<<<<<<<<<<<<');
+  const name = req.body.name;
   try {
-    if (/signin/.test(req.path)) {
-      // /auth/signup
+    if (/signin/i.test(req.path)) {
       const user = await User.findOne({ email }).exec();
       if (user && (await bcrypt.compare(pass, user.password)))
         return done(null, user);
       else return done(null, false);
     }
-    if (/signup/.test(req.path) && email && pass && name) {
-      // /auth/signup
+    if (/signup/i.test(req.path) && email && pass && name) {
       const hashPass = await bcrypt.hash(pass, 10);
       const newUser = new User({
         name: name,
@@ -42,25 +40,14 @@ const localAuth = async (req, email, pass, done) => {
         password: hashPass,
       });
       await newUser.save();
-      done(null, newUser, { message: 'успешно создан' }); // req.user = newUser;
+      // { message: 'успешно создан' } ловиться в controllers/autn в аргументе info signupLocalPassport
+      done(null, newUser, { message: 'успешно создан' });
     }
   } catch (error) {
     console.log('Catch err: ', error?.message);
     done(error);
   }
 };
-
-// const vkAuth = (accessToken, refreshToken, params, profile, done) => {
-//
-//   // Now that we have user's `profile` as seen by VK, we can
-//   // use it to find corresponding database records on our side.
-//   // Also we have user's `params` that contains email address (if set in
-//   // scope), token lifetime, etc.
-//   // Here, we have a hypothetical `User` class which does what it says.
-//   // User.findOrCreate({ vkontakteId: profile.id })
-//   //   .then(function (user) { done(null, user); })
-//   //   .catch(done);
-// }
 
 passport.use(
   new LocalStrategy(
@@ -73,13 +60,3 @@ passport.use(
   )
 );
 
-// passport.use(
-//   new VKontakteStrategy(
-//     {
-//       clientID: VKONTAKTE_APP_ID, // VK.com docs call it 'API ID', 'app_id', 'api_id', 'client_id' or 'apiId'
-//       clientSecret: VKONTAKTE_APP_SECRET,
-//       callbackURL: 'http://localhost:3000/auth/vkontakte/callback',
-//     },
-//     vkAuth
-//   )
-// );

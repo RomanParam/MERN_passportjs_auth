@@ -42,7 +42,7 @@ const Main = ({isAuth, setAuth}) => {
         <Route exact path='/signin'> <SignIn setAuth={setAuth}/> </Route>
         <Route exact path='/signout'> <SignOut setAuth={setAuth}/> </Route>
 
-        <PrivateRoute path='/private' isAuth={isAuth}> <Private /> </PrivateRoute>
+        <PrivateRoute path='/private' isAuth={isAuth}> <Private setAuth={setAuth}/> </PrivateRoute>
 
         <Route path='/'> <Page404 /> </Route>
       </Switch>
