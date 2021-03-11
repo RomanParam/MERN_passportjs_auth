@@ -1,4 +1,4 @@
-# Express Authentication Skeleton
+# Mongo-Express-React-Node PassportJS Authentication Skeleton
 
 Данный репозиторий содержит пример реализации аутентификации с помощью `passportjs express`.
 
