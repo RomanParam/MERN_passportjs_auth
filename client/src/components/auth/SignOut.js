@@ -9,12 +9,16 @@ const SignIn = ({setAuth}) => {
 
       (async () => {
           try {
-            const isAuth = await (await fetch(baseUrl + '/auth/signout')).json()
+            const response = await fetch(baseUrl + '/auth/signout');
+            console.log('resp status', response.status)
+            if(response.status !== 200) return alert(response.statusText)
+            const isAuth = await response.json();
             console.log('file-SignOut.js isAuth:', isAuth);
-            setAuth(isAuth.session);
+            setAuth(false);
+            alert(isAuth.message)
           } catch ({message}) {
             console.log('Err: ', message);
-            setAuth(false)
+            alert(message)
           }
         }
       )()

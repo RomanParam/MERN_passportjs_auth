@@ -6,7 +6,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    minlength: 4,
+    minlength: [4, 'Минимальная длинна имени - 4 (сообщение из mongo Schema)'],
     match: /^[A-Z]\w+$/i,
   },
   // Мы не храним пароль, а только его хэш

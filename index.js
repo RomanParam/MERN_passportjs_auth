@@ -1,5 +1,6 @@
 import express from 'express';
 import session from 'express-session'; // библиотека для работы с сессиями// cookie-parser уже включен в express-session
+import passport from 'passport';
 import path from 'path';
 import morgan from 'morgan';
 import cors from 'cors';
@@ -7,6 +8,9 @@ import cors from 'cors';
 // подключаем базы данных (обычную и для хранения сессий).
 import './config/db.js';
 import MongoStore from "connect-mongo";
+
+// подключаем настройки паспорта
+import './config/passport.js';
 
 import indexRouter from './src/routes/index.js';
 import authRouter from './src/routes/auth.js';
@@ -34,7 +38,6 @@ app.use(morgan('dev'));
 
 app.use(
   session({
-    name: 'sid', // название куки
     // ключ для шифрования cookies // require('crypto').randomBytes(16).toString('hex') - генерация ключа
     secret: process.env.SESSION_SECRET,
     store: MongoStore.create({ mongoUrl: process.env.SESSION_DB_PATH }),
@@ -47,8 +50,12 @@ app.use(
     },
   }),
 );
-// записывает имя пользователя в переменную res.locals.username, если он авторизован в системе
-app.use(userMiddleware);
+
+app.use(passport.initialize());
+app.use(passport.session()); //passport.js записавает сессии в req.user
+
+// // записывает имя пользователя в переменную res.locals.username, если он авторизован в системе
+// app.use(userMiddleware);
 
 app.use('/api', indexRouter);
 app.use('/api/auth', authRouter);

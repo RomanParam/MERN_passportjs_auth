@@ -1,4 +1,5 @@
 import express from 'express';
+import passport from 'passport';
 import bcrypt from 'bcrypt';
 import User from '../models/user.js';
 import isAuth from '../../middlewares/auth.js';
@@ -11,7 +12,7 @@ const router = express.Router();
  */
 function failAuth(res, message) {
   console.log('file-auth.js message:', message);
-  return res.status(401).json({session: false, message: message})
+  return res.status(401).json({ session: false, message: message });
 }
 
 /**
@@ -26,71 +27,48 @@ function serializeUser(user) {
   };
 }
 
-router
-  .route('/signup')
-  // Страница регистрации пользователя
-  // .get((req, res) => res.render('signup', { isSignup: true }))
-  // Регистрация пользователя
-  .post(async (req, res) => {
-    const { name, password, email } = req.body;
-    try {
-      // Мы не храним пароль в БД, только его хэш
-      const saltRounds = 10;
+// Регистрация пользователя
+router.post('/signup', (req, res, next) => {
+  passport.authenticate('local', (err, user, info) => {
+    console.log('err', err?.message);
+    console.log('user', user);
+    console.log('info', info);
+    if (err) return res.json({ session: false, message: err.message, err });
+    if (!user)
+      return res.json({ session: false, message: 'Пользователь не найден' });
+    req.logIn(user, function (err) {
+      if (err) return res.json({ session: false, message: err.message, err });
+      else
+        return res.json({
+          session: true,
+          message: `Пользователь ${user.name} ${info.message}`,
+          user: serializeUser(user),
+        });
+    });
+  })(req, res, next);
+});
 
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
+// Аутентификация пользователя
+router.post('/signin', passport.authenticate('local'), (req, res) => {
+  return res.json({
+    session: true,
+    message: `Успешный вход ${req.user.name}`,
+    user: serializeUser(req.user),
+  }); // ответ браузеру
+});
 
-      const user = await User.create({
-        name,
-        password: hashedPassword,
-        email,
-      });
-      // записываем в req.session.user данные (id & name) (создаем сессию)
-      req.session.user = serializeUser(user); // req.session.user -> id, name
-    } catch (err) {
-      console.error('Err message:', err.message);
-      console.error('Err code', err.code);
-      return failAuth(res, err.code);
-    }
-    // res.cookie("sid", 'dkfjhksfhskfj') // делает за вас express session библиотека
-    return res.json({session: true, message: 'signUp successfully'}); // ответ браузеру + cookies
-  });
-
-router
-  .route('/signin')
-  // Страница аутентификации пользователя
-  // .get((req, res) => res.render('signin', { isSignin: true }))
-  // Аутентификация пользователя
-  .post(async (req, res) => {
-    const { name, password } = req.body;
-    try {
-      // Пытаемся сначала найти пользователя в БД
-      const user = await User.findOne({ name: name }).exec();
-      if (!user)
-        return failAuth(res, 'неверное имя/пароль');
-      // Сравниваем хэш в БД с хэшем введённого пароля
-      const isValidPassword = await bcrypt.compare(password, user.password);
-      if (!isValidPassword)
-        return failAuth(res, 'неверное имя/пароль');
-      req.session.user = serializeUser(user); // записываем в req.session.user данные (id & name) (создаем сессию)
-    } catch (err) {
-      console.error('Err message:', err.message);
-      console.error('Err code', err.code);
-      return failAuth(res, err.message);
-    }
-    return res.json({session: true, message: 'login successfully'}); // ответ браузеру + cookies
-  });
-
-
+// passportJS req.logout(); не работает!!!
+// https://stackoverflow.com/questions/13758207/why-is-passportjs-in-node-not-removing-session-on-logout
 router.get('/signout', (req, res, next) => {
   req.session.destroy((err) => {
-    if (err) return next(err);
-    res.clearCookie('sid');
-    return res.json({session: false, message: 'logout successfully'});
+    if (err) return res.status(400).end();
+    res.clearCookie('connect.sid');
+    return res.json({ message: 'Успешный выход' });
   });
 });
 
 router.get('/check', isAuth, (req, res) => {
-  res.json({session: true, message: 'authorized'})
-})
+  res.json({ session: true, message: 'авторизован', user: serializeUser(req.user) });
+});
 
 export default router;
