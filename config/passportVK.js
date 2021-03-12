@@ -21,7 +21,7 @@ passport.use(
     {
       clientID: '7788203', // VK.com docs call it 'API ID', 'app_id', 'api_id', 'client_id' or 'apiId'
       clientSecret: 'I1o4LazxMuQzDE0bFxZi',
-      callbackURL: 'http://localhost:3000/home',
+      callbackURL: 'https://mern-passportjs.herokuapp.com',
     },
     vkAuth
   )
