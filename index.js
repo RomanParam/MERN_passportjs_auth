@@ -32,9 +32,9 @@ const corsOptions = {
   origin: '*',
   methods: "GET,HEAD,POST,PATCH,DELETE,OPTIONS",
   credentials: true,                // required to pass
-  allowedHeaders: "Content-Type, Authorization, X-Requested-With Al",
+  allowedHeaders: "*",
 }
-app.use(cors());
+app.use(cors(corsOptions));
 
 app.use(
   session({
