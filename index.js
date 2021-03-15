@@ -12,6 +12,7 @@ import MongoStore from "connect-mongo";
 // подключаем настройки паспорта
 import './config/passport.js';
 import './config/passportVK.js'
+import './config/passportGoogle.js'
 
 import indexRouter from './src/routes/index.js';
 import authRouter from './src/routes/auth.js';
@@ -32,7 +33,7 @@ const corsOptions = {
   origin: '*',
   methods: "GET,HEAD,POST,PATCH,DELETE,OPTIONS",
   credentials: true,                // required to pass
-  allowedHeaders: "*",
+  allowedHeaders: "Content-Type, Authorization, X-Requested-With",
 }
 app.use(cors(corsOptions));
 

@@ -1,15 +1,16 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import {baseUrl} from "../../api/urls"
+import Context from "../../context"
 
-const SignIn = ({setAuth}) => {
+const SignIn = () => {
   const history = useHistory();
+  const { setAuth } = React.useContext(Context);
 
   React.useEffect(() => {
 
       (async () => {
           try {
-            const response = await fetch(baseUrl + '/auth/signout');
+            const response = await fetch('/api/auth/signout');
             console.log('resp status', response.status)
             if(response.status !== 200) return alert(response.statusText)
             const isAuth = await response.json();

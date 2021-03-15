@@ -22,7 +22,18 @@ passport.deserializeUser(function (id, done) {
   });
 });
 
-const localAuth = async (req, email, pass, done) => {
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: 'email', // переопределение полей
+      passwordField: 'password',
+      passReqToCallback: true,
+    },
+    localAuth
+  )
+);
+
+async function localAuth(req, email, pass, done) {
   console.log('>>>>>>>>>>>>>>>PASSPORT<<<<<<<<<<<<<<<<<<<');
   const name = req.body.name;
   try {
@@ -48,15 +59,4 @@ const localAuth = async (req, email, pass, done) => {
     done(error);
   }
 };
-
-passport.use(
-  new LocalStrategy(
-    {
-      usernameField: 'email', // переопределение полей
-      passwordField: 'password',
-      passReqToCallback: true,
-    },
-    localAuth
-  )
-);
 

@@ -4,7 +4,7 @@ import { baseUrl } from '../api/urls';
 const Private = ({setAuth}) => {
   const delHandler = async () => {
     try {
-      await fetch(baseUrl + '/auth/del', {
+      await fetch('/api/auth/del', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

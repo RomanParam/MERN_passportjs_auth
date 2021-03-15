@@ -1,14 +1,17 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { baseUrl } from '../../api/urls';
+import Context from '../../context';
 
-const SignUp = ({ setAuth }) => {
+const SignUp = () => {
   const history = useHistory();
+  const { setAuth } = React.useContext(Context);
+  const [isLoading, setLoading] = React.useState(false);
 
   const signUpHandler = async () => {
     try {
+      setLoading(true);
       const isAuth = await (
-        await fetch(baseUrl + '/auth/signup', {
+        await fetch('/api/auth/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -20,6 +23,7 @@ const SignUp = ({ setAuth }) => {
           }),
         })
       ).json();
+      setLoading(false);
       setAuth(isAuth?.session);
       console.log('file-SignUp.js isAuth:', isAuth);
       if (isAuth?.err?.code === 11000)
@@ -31,14 +35,16 @@ const SignUp = ({ setAuth }) => {
     } catch ({ message }) {
       console.log('Err: ', message);
       alert(message);
-      //setAuth(false)
+      setLoading(false);
     }
   };
   return (
     <div>
       <span className="component">
         {' '}
-        <button onClick={signUpHandler}>SignUp</button>
+        <button onClick={signUpHandler} disabled={isLoading}>
+          SignUp Local
+        </button>
       </span>
     </div>
   );

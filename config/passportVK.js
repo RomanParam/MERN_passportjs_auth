@@ -4,24 +4,27 @@ import User from '../src/models/user.js';
 
 const VKontakteStrategy = passportVkontakte.Strategy;
 
-const vkAuth = (accessToken, refreshToken, params, profile, done) => {
-
-  // Now that we have user's `profile` as seen by VK, we can
-  // use it to find corresponding database records on our side.
-  // Also we have user's `params` that contains email address (if set in
-  // scope), token lifetime, etc.
-  // Here, we have a hypothetical `User` class which does what it says.
-  User.findOrCreate({ vkontakteId: profile.id })
-    .then(function (user) { done(null, user); })
-    .catch(done);
-}
+const vkAuth = async (accessToken, refreshToken, params, profile, done) => {
+  let user = await User.findOne({ vkontakteId: profile.id });
+  if (user) {
+    done(null, user);
+  } else {
+    user = await User.create({
+      name: profile.username,
+      email: `${profile.username}_${profile.id}@${profile.provider}.ru`,
+      password: profile.id,
+      vkontakteId: profile.id,
+    });
+    done(null, user);
+  }
+};
 
 passport.use(
   new VKontakteStrategy(
     {
-      clientID: '7788203', // VK.com docs call it 'API ID', 'app_id', 'api_id', 'client_id' or 'apiId'
-      clientSecret: 'I1o4LazxMuQzDE0bFxZi',
-      callbackURL: 'https://mern-passportjs.herokuapp.com',
+      clientID: process.env.vkClientID,
+      clientSecret: process.env.vkClientSecret,
+      callbackURL: process.env.vkCallbackURL,
     },
     vkAuth
   )

@@ -8,8 +8,9 @@
     "node": "14.16.x"
   },
   "scripts": {
+    "dev": "cd client && npm run build && cd .. && nodemon index.js",
+    "depend": "npm i && cd client && npm i",
     "start": "node index.js",
-    "dev": "nodemon index.js",
     "build": "cd client && npm install && npm run build"
   },
   "keywords": [],
@@ -26,6 +27,7 @@
     "mongoose": "^5.11.13",
     "morgan": "^1.10.0",
     "passport": "^0.4.1",
+    "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
     "passport-vkontakte": "^0.5.0"
   },

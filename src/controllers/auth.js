@@ -61,7 +61,7 @@ export const signOut = (req, res, next) => {
 
 export const deleteUsers = async (req, res, next) => {
   const result = await User.deleteMany({});
-  if (result === 1) return next();
+  if (result.ok === 1) return next();
   else return res.status(400).end();
 };
 

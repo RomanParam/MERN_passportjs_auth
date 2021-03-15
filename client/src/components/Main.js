@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Link, Switch, Redirect } from 'react-router-dom';
+import { Route, Link, Switch, Redirect, useLocation } from 'react-router-dom';
 
 import About from './About';
 import Contact from './Contact';
@@ -10,14 +10,18 @@ import Home from './Home';
 import SignIn from "./auth/SignIn"
 import SignOut from "./auth/SignOut"
 import SignUp from "./auth/SignUp"
+import Context from "../context"
 
-const Main = ({isAuth, setAuth}) => {
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
 
+const Main = () => {
+  const { isAuth, setAuth } = React.useContext(Context);
+  let query = useQuery();
   return (
     <div className='wrapper'>
-      {console.log('Rendered')}
-      Hola React Router <br />
-      {/* <a href='/'>Home</a> */}
+      Hola React Router<br/><br/>
       <Link to='/'>Home</Link>
       <Link to='/about'>ABOUT</Link>
       <Link to='/contact/Neglinka'>CONTACT</Link>
@@ -38,11 +42,12 @@ const Main = ({isAuth, setAuth}) => {
 
         <Route exact path='/contact/:street'> <Contact address={'Inner Mongolia'} /> </Route>
 
-        <Route exact path='/signup'> <SignUp setAuth={setAuth}/> </Route>
-        <Route exact path='/signin'> <SignIn setAuth={setAuth}/> </Route>
-        <Route exact path='/signout'> <SignOut setAuth={setAuth}/> </Route>
+        <Route exact path='/signup'> <SignUp /> </Route>
+        <Route exact path='/signin'> <SignIn /> </Route>
+        <Route exact path='/signout'> <SignOut /> </Route>
 
         <PrivateRoute path='/private' isAuth={isAuth}> <Private setAuth={setAuth}/> </PrivateRoute>
+        {/*<Route exact path='/vkontakte/callback'> <VKCallback code={query.get("code")} /> </Route>*/}
 
         <Route path='/'> <Page404 /> </Route>
       </Switch>
